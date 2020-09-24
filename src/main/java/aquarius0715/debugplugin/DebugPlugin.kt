@@ -30,7 +30,7 @@ class DebugPlugin : JavaPlugin() {
         // Plugin shutdown logic
     }
 
-    private fun createTeams() {
+    private fun createTeams(player: Player) {
 
         objective.displayName = "BlueMonster"
         objective.displaySlot = DisplaySlot.SIDEBAR
@@ -41,7 +41,11 @@ class DebugPlugin : JavaPlugin() {
         blueMonster.prefix = "${ChatColor.BLUE}[青鬼]"
         hiroshi.prefix = "[ひろし]"
 
-        Bukkit.broadcastMessage("${prefix}Teamの作成に成功！")
+        for (team in board.teams) {
+
+            player.sendMessage("${prefix}Team: ${team.displayName} を作成しました。")
+
+        }
 
     }
 
@@ -63,6 +67,34 @@ class DebugPlugin : JavaPlugin() {
 
     }
 
+    private fun deleteTeam(player: Player, teamName: String) {
+
+        for (team in board.teams) {
+
+            if (team.displayName == teamName) {
+
+                board.teams.remove(team)
+
+                player.sendMessage("${prefix}Team: ${team.displayName} を削除しました。")
+
+                return
+
+            }
+
+        }
+
+        player.sendMessage("${prefix}そのような名称のチームは存在しません。")
+
+    }
+
+    private fun deleteAllTeams(player: Player) {
+
+        board = manager.newScoreboard
+
+        player.sendMessage("${prefix}チームを全削除しました。")
+
+    }
+
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
 
         if (sender !is Player) return false
@@ -71,29 +103,57 @@ class DebugPlugin : JavaPlugin() {
 
             "debug" -> {
 
-                when (args[0]) {
+                when (args.size) {
 
-                    "createteam" -> {
+                    1 -> {
 
-                        createTeams()
+                        when (args[0]) {
 
-                        return true
+                            "createteam" -> {
+
+                                createTeams(sender)
+
+                                return true
+
+                            }
+
+                            "countteam" -> {
+
+                                countTeams(sender)
+
+                                return true
+
+                            }
+
+                            "showteams" -> {
+
+                                showTeams(sender)
+
+                                return true
+
+                            }
+
+                            "deleteteams" -> {
+
+                                deleteAllTeams(sender)
+
+                            }
+
+                        }
 
                     }
 
-                    "countteam" -> {
+                    2 -> {
 
-                        countTeams(sender)
+                        when (args[0]) {
 
-                        return true
+                            "deleteteam" -> {
 
-                    }
+                                deleteTeam(sender, args[1])
 
-                    "showteams" -> {
+                            }
 
-                        showTeams(sender)
-
-                        return true
+                        }
 
                     }
 
